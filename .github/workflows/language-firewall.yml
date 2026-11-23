@@ -1,0 +1,77 @@
+﻿name: Language Purity Firewall
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  audit-language-purity:
+    name: Verify Zero Portuguese Language Bleed & Strict Sovereign Localization
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Deterministic Language Firewall Audit
+        run: |
+          python3 -c '
+          import os, sys, re
+
+          FORBIDDEN_PT = [
+              r"\bnenhuma?\b",
+              r"\bexposi[çc][ãa]o\b",
+              r"\bciberseguran[çc]a\b",
+              r"\bferramentas?\b",
+              r"\bdireitos\s+reservados\b",
+              r"\btodos\s+os\s+direitos\b",
+              r"tavardt\s+brasil",
+              r"\brotas?\s+monitoradas?\b",
+              r"\brotas?\s+inspecionadas?\b",
+              r"\bpar[âa]metros\s+de\s+rede\b",
+              r"\bfalha\s+na\s+conex[ãa]o\b",
+              r"\bconfigura[çc][ãa]o\s+robusta\b",
+              r"\bindispon[íi]vel\b",
+              r"\binstru[çc][õo]es\s+detectadas\b",
+              r"\bexfiltra[çc][ãa]o\b",
+              r"\bnao\s+detectada\b",
+              r"\blinks\s+com\s+falha\b",
+              r"\brelat[óo]rio\s+estruturado\b",
+              r"\bm[áa]\s+pr[áa]tica\b",
+              r"\bnenhum\s+manifesto\b",
+              r"\bnenhuma\s+vulnerabilidade\s+cr[íi]tica\b",
+              r"/br/ciberseguranca/",
+              r"/ciberseguranca/"
+          ]
+          compiled_pt = [re.compile(p, re.IGNORECASE) for p in FORBIDDEN_PT]
+
+          violations = []
+          for root, dirs, files in os.walk("."):
+              if ".git" in root or "node_modules" in root:
+                  continue
+              for f in files:
+                  if f.endswith((".py", ".js", ".ts", ".html", ".md", ".sh", ".json", ".yml", ".yaml")):
+                      path = os.path.join(root, f)
+                      try:
+                          with open(path, "r", encoding="utf-8", errors="ignore") as fp:
+                              lines = fp.readlines()
+                          for idx, line in enumerate(lines):
+                              for cp in compiled_pt:
+                                  if cp.search(line):
+                                      violations.append(f"{path}:{idx+1} [PT LEAK]: {line.strip()}")
+                              if "\u2014" in line:
+                                  violations.append(f"{path}:{idx+1} [EM-DASH VIOLATION]: {line.strip()}")
+                      except Exception as e:
+                          pass
+
+          if violations:
+              print("\n=======================================================")
+              print(f"CRITICAL ERROR: {len(violations)} LANGUAGE PURITY VIOLATIONS FOUND!")
+              print("=======================================================")
+              for v in violations:
+                  print("  ", v)
+              sys.exit(1)
+          else:
+              print("\n[OK] 100% Zero-Leak Language Purity Verified. Zero Em-Dashes.")
+          '
