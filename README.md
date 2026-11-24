@@ -5,7 +5,7 @@
 
 CLI attack surface scanner for automated discovery of environment files, database dumps, and credential leakage aligned with ACSC Essential Eight.
 
-Developed and maintained by the offensive security and attack surface division of **TAVARDT Australia**.
+Developed and maintained by the offensive security and attack surface division of **TAVARDT**.
 
 ***
 
@@ -42,13 +42,13 @@ python scanner.py enterprise.com.au -json
 For automated surface monitoring and detailed vulnerability analysis, access the official web diagnostic suite:
 
 * **Exposed Files and Secrets Scanner**
-* **TAVARDT Australia Corporate Portal**
+* **TAVARDT Corporate Portal**
 
 ***
 
 ## Enterprise Attack Surface Consulting
 
-For penetration testing, vulnerability remediation, and zero-trust perimeter defense in Australia, contact **TAVARDT Australia**.
+For penetration testing, vulnerability remediation, and zero-trust perimeter defense in Australia, contact **TAVARDT**.
 
 ***
 
